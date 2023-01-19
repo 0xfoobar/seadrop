@@ -7,6 +7,8 @@ import {
     INonFungibleSeaDropToken
 } from "./interfaces/INonFungibleSeaDropToken.sol";
 
+import { IDelegationRegistry } from "./interfaces/IDelegationRegistry.sol";
+
 import {
     AllowListData,
     MintParams,
@@ -43,6 +45,9 @@ import {
  */
 contract SeaDrop is ISeaDrop, ReentrancyGuard {
     using ECDSA for bytes32;
+
+    IDelegationRegistry public constant delegationRegistry =
+        IDelegationRegistry(0x00000000000076A84feF008CDAbe6409d2FE638B);
 
     /// @notice Track the public drops.
     mapping(address => PublicDrop) private _publicDrops;
@@ -205,7 +210,10 @@ contract SeaDrop is ISeaDrop, ReentrancyGuard {
 
         // Ensure the payer is allowed if not the minter.
         if (minter != msg.sender) {
-            if (!_allowedPayers[nftContract][msg.sender]) {
+            if (
+                !_allowedPayers[nftContract][msg.sender] &&
+                !delegationRegistry.checkDelegateForAll(msg.sender, minter)
+            ) {
                 revert PayerNotAllowed();
             }
         }
@@ -272,7 +280,10 @@ contract SeaDrop is ISeaDrop, ReentrancyGuard {
 
         // Ensure the payer is allowed if not the minter.
         if (minter != msg.sender) {
-            if (!_allowedPayers[nftContract][msg.sender]) {
+            if (
+                !_allowedPayers[nftContract][msg.sender] &&
+                !delegationRegistry.checkDelegateForAll(msg.sender, minter)
+            ) {
                 revert PayerNotAllowed();
             }
         }
@@ -351,7 +362,10 @@ contract SeaDrop is ISeaDrop, ReentrancyGuard {
 
         // Ensure the payer is allowed if not the minter.
         if (minter != msg.sender) {
-            if (!_allowedPayers[nftContract][msg.sender]) {
+            if (
+                !_allowedPayers[nftContract][msg.sender] &&
+                !delegationRegistry.checkDelegateForAll(msg.sender, minter)
+            ) {
                 revert PayerNotAllowed();
             }
         }
@@ -508,7 +522,10 @@ contract SeaDrop is ISeaDrop, ReentrancyGuard {
 
         // Ensure the payer is allowed if not the minter.
         if (minter != msg.sender) {
-            if (!_allowedPayers[nftContract][msg.sender]) {
+            if (
+                !_allowedPayers[nftContract][msg.sender] &&
+                !delegationRegistry.checkDelegateForAll(msg.sender, minter)
+            ) {
                 revert PayerNotAllowed();
             }
         }
